@@ -54,14 +54,21 @@ export async function listTickets({ orgId, page = 1, search = '', status, priori
   return { rows, total, page, pageSize: PAGE_SIZE };
 }
 
-export async function getTicketById(id) {
+export async function getTicketById(id, orgId = null) {
+  const where = ['t.id = ?'];
+  const params = [id];
+  if (orgId !== null && orgId !== undefined) {
+    where.push('t.org_id = ?');
+    params.push(orgId);
+  }
+
   const rows = await query(
     `SELECT t.*, u.name AS assignee_name, r.name AS requester_name, r.email AS requester_email
        FROM tickets t
        LEFT JOIN users u ON u.id = t.assignee_id
        JOIN users r ON r.id = t.requester_id
-      WHERE t.id = ?`,
-    [id]
+      WHERE ${where.join(' AND ')}`,
+    params
   );
   return rows[0] || null;
 }
@@ -83,11 +90,11 @@ export async function createTicket({ orgId, subject, body, priority, requesterId
      VALUES (?, ?, ?, ?, ?)`,
     [orgId, subject, body, priority, requesterId]
   );
-  return getTicketById(result.insertId);
+  return getTicketById(result.insertId, orgId);
 }
 
-export async function assignTicket(ticketId, assigneeId) {
-  const ticket = await getTicketById(ticketId);
+export async function assignTicket(ticketId, assigneeId, orgId = null) {
+  const ticket = await getTicketById(ticketId, orgId);
   if (!ticket) return null;
 
   if (ticket.assignee_id) {
@@ -98,9 +105,13 @@ export async function assignTicket(ticketId, assigneeId) {
   const [agent] = await query('SELECT id, name FROM users WHERE id = ?', [assigneeId]);
 
   await query('UPDATE tickets SET assignee_id = ?, status = ? WHERE id = ?', [assigneeId, 'pending', ticketId]);
-  return { conflict: false, assignedTo: agent, ticket: await getTicketById(ticketId) };
+  return { conflict: false, assignedTo: agent, ticket: await getTicketById(ticketId, orgId) };
 }
 
-export async function deleteTicket(id) {
-  await query('DELETE FROM tickets WHERE id = ?', [id]);
+export async function deleteTicket(id, orgId = null) {
+  if (orgId !== null && orgId !== undefined) {
+    await query('DELETE FROM tickets WHERE id = ? AND org_id = ?', [id, orgId]);
+  } else {
+    await query('DELETE FROM tickets WHERE id = ?', [id]);
+  }
 }

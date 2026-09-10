@@ -2,6 +2,16 @@ import { query } from '../db/pool.js';
 
 const PAGE_SIZE = 20;
 
+const ALLOWED_SORT_COLUMNS = {
+  created_at: 't.created_at',
+  updated_at: 't.updated_at',
+  priority: 't.priority',
+  status: 't.status',
+  id: 't.id',
+  subject: 't.subject',
+};
+const ALLOWED_ORDERS = ['ASC', 'DESC'];
+
 /**
  * Paginated ticket list for the current organisation.
  *
@@ -28,6 +38,9 @@ export async function listTickets({ orgId, page = 1, search = '', status, priori
   const whereSql = where.join(' AND ');
   const offset = page * PAGE_SIZE;
 
+  const sortCol = ALLOWED_SORT_COLUMNS[sortBy] || 't.created_at';
+  const sortOrder = ALLOWED_ORDERS.includes(String(order).toUpperCase()) ? String(order).toUpperCase() : 'DESC';
+
   const rows = await query(
     `SELECT t.id, t.subject, t.status, t.priority, t.created_at, t.updated_at,
             t.assignee_id, u.name AS assignee_name, r.name AS requester_name
@@ -35,7 +48,7 @@ export async function listTickets({ orgId, page = 1, search = '', status, priori
        LEFT JOIN users u ON u.id = t.assignee_id
        JOIN users r ON r.id = t.requester_id
       WHERE ${whereSql}
-      ORDER BY t.${sortBy} ${order}
+      ORDER BY ${sortCol} ${sortOrder}
       LIMIT ? OFFSET ?`,
     [...params, PAGE_SIZE, offset]
   );

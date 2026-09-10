@@ -53,7 +53,9 @@ export default function TicketDetail() {
       </p>
       <p className="body">{ticket.body}</p>
 
-      {!ticket.assignee_id && <button onClick={claim}>Claim this ticket</button>}
+      {!ticket.assignee_id && (user?.role === 'agent' || user?.role === 'admin') && (
+        <button onClick={claim}>Claim this ticket</button>
+      )}
       {ticket.assignee_id && <p className="meta">Assigned to {ticket.assignee_name}</p>}
 
       <h2>Comments</h2>

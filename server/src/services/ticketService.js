@@ -36,7 +36,8 @@ export async function listTickets({ orgId, page = 1, search = '', status, priori
   }
 
   const whereSql = where.join(' AND ');
-  const offset = page * PAGE_SIZE;
+  const pageNum = Math.max(1, Number(page) || 1);
+  const offset = (pageNum - 1) * PAGE_SIZE;
 
   const sortCol = ALLOWED_SORT_COLUMNS[sortBy] || 't.created_at';
   const sortOrder = ALLOWED_ORDERS.includes(String(order).toUpperCase()) ? String(order).toUpperCase() : 'DESC';
@@ -64,7 +65,7 @@ export async function listTickets({ orgId, page = 1, search = '', status, priori
     params
   );
 
-  return { rows, total, page, pageSize: PAGE_SIZE };
+  return { rows, total, page: pageNum, pageSize: PAGE_SIZE };
 }
 
 export async function getTicketById(id, orgId = null) {

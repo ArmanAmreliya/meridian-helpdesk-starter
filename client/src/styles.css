@@ -22,3 +22,12 @@ button:disabled { opacity:.4; cursor:default; }
 .comments li.internal { background:#fffbe6; }
 .comments .when { color:#666; font-size:12px; margin-left:8px; }
 .meta { color:#555; font-size:14px; }
+
+.badge { display:inline-block; padding:3px 8px; border-radius:12px; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.02em; white-space:nowrap; }
+.badge-breached { background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; }
+.badge-ok { background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; }
+.sla-filter { display:flex; align-items:center; gap:6px; font-size:14px; font-weight:500; cursor:pointer; user-select:none; margin-left:8px; }
+.sla-filter input { cursor:pointer; width:16px; height:16px; accent-color:#b91c1c; }
+.row-breached { background-color: #fff9f9; }
+tr:hover { background-color: #f9f9fb; }
+.row-breached:hover { background-color: #fee2e2; }

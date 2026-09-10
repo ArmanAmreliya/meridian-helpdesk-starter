@@ -46,9 +46,20 @@ export default function TicketDetail() {
 
   return (
     <div className="ticket-detail">
-      <h1>{ticket.subject}</h1>
+      <h1>
+        {ticket.subject}
+        {ticket.is_breached ? (
+          <span className="badge badge-breached" style={{ marginLeft: '12px', fontSize: '14px', verticalAlign: 'middle' }}>
+            SLA Breached
+          </span>
+        ) : (
+          <span className="badge badge-ok" style={{ marginLeft: '12px', fontSize: '14px', verticalAlign: 'middle' }}>
+            Within SLA
+          </span>
+        )}
+      </h1>
       <p className="meta">
-        #{ticket.id} · {ticket.status} · {ticket.priority} ·
+        #{ticket.id} · {ticket.status} · {ticket.priority} ({ticket.sla_target_hours || 24}h target) ·
         requested by {ticket.requester_name} ({ticket.requester_email})
       </p>
       <p className="body">{ticket.body}</p>
